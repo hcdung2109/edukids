@@ -1,0 +1,20 @@
+Website bằng laravel , giới thiệu  công ty Nền tảng giáo dục đa công nghệ 
+Đào tạo Robotics - STEM - Lập trình - Kỹ năng - Bồi dưỡng kiến thức cho trẻ em
+
+- Sử dụng kết nối database MySQL (cấu hình trong `.env`: `DB_CONNECTION=mysql`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`)
+
+Trang quản trị (AdminLTE):
+- Đăng nhập tại `/login`. Tài khoản admin mặc định được tạo bởi `php artisan db:seed` (xem `DatabaseSeeder`).
+- Chỉ user có role **admin** mới truy cập được `/admin`. User **teacher** đăng nhập vào dashboard thường.
+- Quản lý danh sách tài khoản tại `/admin/users`: thêm/sửa/xóa, 2 loại role: **admin**, **teacher**
+- Quản lý liên hệ từ trang chủ
+- Quản lý tin tức được sử dụng hiển thị trong trang chủ. **Xóa hết tin cũ + thêm lại dữ liệu mẫu:** `php artisan db:seed --class=NewsSeeder --force`. Ảnh từ [fanpage Facebook EduKids](https://www.facebook.com/ToHopCongNgheGiaoDucEDUKIDS): tải ảnh về máy rồi vào Admin → Tin tức & Sự kiện → Sửa từng bài → upload Ảnh đại diện / Thư viện ảnh.
+- Quản lý site : Các thông tin liên hệ, địa chỉ, email, facebook, số điện thoại,... đang hiển trị ở trang chủ 
+- Quản lý danh sách khóa học
+- Quản lý danh sách trung tâm
+- Quản lý danh sách lớp học theo trung tâm
+- Quản lý danh sách học viên theo lớp học của trung tâm
+- Quản lý danh sách buổi học theo lớp của trung tâm, có thể xem theo dạng lịch tháng
+- Chức năng điểm danh học viên của buổi học
+- Quản lý danh sách file tài liệu tải lên (word , pdf , powerpoint ...) , gán quyền xem tài liệu theo từng lớp học, tài liệu chỉ có quyền xem online không thẻ tải
+- Quản lý danh sách tài khoản , có 2 loại role : admin, teacher
