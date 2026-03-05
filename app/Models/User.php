@@ -66,6 +66,11 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+    public function managedLearningTools(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(LearningTool::class, 'managed_by_user_id');
+    }
+
     /**
      * Kiểm tra user có quyền (permission) theo tên.
      * Admin luôn có mọi quyền. Các role khác kiểm tra trong role_permissions.

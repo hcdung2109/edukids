@@ -82,6 +82,14 @@
                         </a>
                     </li>
                     @endif
+                    @if(auth()->user()->isAdmin())
+                    <li class="nav-item">
+                        <a href="{{ route('admin.learning-tools.index') }}" class="nav-link {{ request()->routeIs('admin.learning-tools.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-toolbox"></i>
+                            <p>Quản lý công cụ học</p>
+                        </a>
+                    </li>
+                    @endif
                     @if(auth()->user()->hasPermission('news.manage'))
                     <li class="nav-item">
                         <a href="{{ route('admin.news.index') }}" class="nav-link {{ request()->routeIs('admin.news.*') ? 'active' : '' }}">

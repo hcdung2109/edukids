@@ -90,12 +90,14 @@ class ClassSessionController extends Controller
 
         $validated = $request->validate([
             'session_date' => ['required', 'date'],
+            'time_slot' => ['nullable', 'string', 'max:50'],
             'note' => ['nullable', 'string', 'max:255'],
         ]);
 
         $dateStr = Carbon::parse($validated['session_date'])->format('Y-m-d');
         $center_class->classSessions()->create([
             'session_date' => $dateStr,
+            'time_slot' => $validated['time_slot'] ?? null,
             'note' => $validated['note'] ?? null,
         ]);
 
@@ -115,6 +117,8 @@ class ClassSessionController extends Controller
         }
 
         $d = $session->session_date;
+        // Xóa điểm danh của buổi học để trang/Excel điểm danh tính đúng số buổi học
+        SessionAttendance::where('class_session_id', $session->id)->delete();
         $session->delete();
 
         return redirect()->route('admin.centers.classes.sessions.index', [
@@ -123,6 +127,58 @@ class ClassSessionController extends Controller
             'year' => $d->year,
             'month' => $d->month,
         ])->with('success', 'Đã xóa buổi học.');
+    }
+
+    /** Xóa tất cả buổi học trong một ngày. */
+    public function destroyByDate(Request $request, Center $center, CenterClass $center_class): RedirectResponse
+    {
+        if ($center_class->center_id !== $center->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'session_date' => ['required', 'date'],
+        ]);
+
+        $dateStr = Carbon::parse($validated['session_date'])->format('Y-m-d');
+        $sessionsToDelete = $center_class->classSessions()
+            ->whereDate('session_date', $dateStr)
+            ->get(['id']);
+        $sessionIds = $sessionsToDelete->pluck('id')->toArray();
+        // Xóa điểm danh của các buổi học để trang/Excel điểm danh tính đúng số buổi học
+        if (! empty($sessionIds)) {
+            SessionAttendance::whereIn('class_session_id', $sessionIds)->delete();
+        }
+        $deleted = $center_class->classSessions()
+            ->whereDate('session_date', $dateStr)
+            ->delete();
+
+        $d = Carbon::parse($dateStr);
+        $message = $deleted > 0 ? 'Đã xóa ' . $deleted . ' buổi học trong ngày này.' : 'Không có buổi học nào trong ngày này.';
+
+        return redirect()->route('admin.centers.classes.sessions.index', [
+            $center,
+            $center_class,
+            'year' => $d->year,
+            'month' => $d->month,
+        ])->with('success', $message);
+    }
+
+    /** Xóa toàn bộ buổi học đã đánh dấu của lớp. */
+    public function destroyAll(Center $center, CenterClass $center_class): RedirectResponse
+    {
+        if ($center_class->center_id !== $center->id) {
+            abort(404);
+        }
+
+        $sessionIds = $center_class->classSessions()->pluck('id')->toArray();
+        if (! empty($sessionIds)) {
+            SessionAttendance::whereIn('class_session_id', $sessionIds)->delete();
+        }
+        $deleted = $center_class->classSessions()->delete();
+
+        return redirect()->route('admin.centers.classes.sessions.index', [$center, $center_class])
+            ->with('success', $deleted > 0 ? 'Đã xóa toàn bộ ' . $deleted . ' buổi học.' : 'Không có buổi học nào để xóa.');
     }
 
     /** Trả về JSON danh sách buổi học trong một ngày (để modal luôn có dữ liệu đúng). */
@@ -139,8 +195,8 @@ class ClassSessionController extends Controller
         $sessions = $center_class->classSessions()
             ->whereDate('session_date', $date)
             ->orderBy('id')
-            ->get(['id', 'session_date', 'note'])
-            ->map(fn ($s) => ['id' => $s->id, 'note' => $s->note ?? '']);
+            ->get(['id', 'session_date', 'time_slot', 'note'])
+            ->map(fn ($s) => ['id' => $s->id, 'time_slot' => $s->time_slot ?? '', 'note' => $s->note ?? '']);
         return response()->json(['sessions' => $sessions]);
     }
 

@@ -33,6 +33,11 @@ class Center extends Model
         return $this->hasMany(CenterClass::class, 'center_id')->orderBy('sort_order')->orderBy('name');
     }
 
+    public function learningTools(): HasMany
+    {
+        return $this->hasMany(LearningTool::class, 'center_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

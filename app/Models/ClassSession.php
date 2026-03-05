@@ -13,6 +13,7 @@ class ClassSession extends Model
     protected $fillable = [
         'center_class_id',
         'session_date',
+        'time_slot',
         'note',
     ];
 

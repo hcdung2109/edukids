@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CenterStudentController as AdminCenterStudentCont
 use App\Http\Controllers\Admin\ClassSessionController as AdminClassSessionController;
 use App\Http\Controllers\Admin\CourseMaterialController as AdminCourseMaterialController;
 use App\Http\Controllers\Admin\CourseController as AdminCourseController;
+use App\Http\Controllers\Admin\LearningToolController as AdminLearningToolController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\PermissionController as AdminPermissionController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
@@ -78,6 +79,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('centers/{center}/classes/{center_class}/sessions/by-date', [AdminClassSessionController::class, 'sessionsByDate'])->name('centers.classes.sessions.by-date');
     Route::post('centers/{center}/classes/{center_class}/sessions', [AdminClassSessionController::class, 'store'])->name('centers.classes.sessions.store');
     Route::delete('centers/{center}/classes/{center_class}/sessions/{session}', [AdminClassSessionController::class, 'destroy'])->name('centers.classes.sessions.destroy');
+    Route::post('centers/{center}/classes/{center_class}/sessions/destroy-by-date', [AdminClassSessionController::class, 'destroyByDate'])->name('centers.classes.sessions.destroy-by-date');
+    Route::post('centers/{center}/classes/{center_class}/sessions/destroy-all', [AdminClassSessionController::class, 'destroyAll'])->name('centers.classes.sessions.destroy-all');
     Route::get('centers/{center}/classes/{center_class}/attendance', [AdminClassSessionController::class, 'attendancePage'])->name('centers.classes.attendance.index');
     Route::get('centers/{center}/classes/{center_class}/attendance-matrix', [AdminClassSessionController::class, 'attendanceMatrix'])->name('centers.classes.attendance.matrix');
     Route::post('centers/{center}/classes/{center_class}/attendance', [AdminClassSessionController::class, 'saveAttendanceBulk'])->name('centers.classes.attendance.store');
@@ -88,6 +91,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('centers/{center}/classes/{center_class}/students/import/template', [AdminCenterStudentController::class, 'downloadTemplate'])->name('centers.classes.students.import.template');
     Route::post('centers/{center}/classes/{center_class}/students/import', [AdminCenterStudentController::class, 'import'])->name('centers.classes.students.import.store');
     Route::resource('centers.classes.students', AdminCenterStudentController::class)->parameters(['class' => 'center_class'])->except(['show']);
+    Route::resource('learning-tools', AdminLearningToolController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

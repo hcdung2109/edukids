@@ -56,6 +56,11 @@ class CenterClass extends Model
             ->withTimestamps();
     }
 
+    public function learningTools(): HasMany
+    {
+        return $this->hasMany(LearningTool::class, 'center_class_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

@@ -43,26 +43,30 @@
             <div class="card-body">
                 <p class="text-muted small mb-3">Đang cấu hình quyền cho vai trò: <strong>{{ $allRoles[$selectedRole] ?? $selectedRole }}</strong>. Tick các ô bên dưới để cấp quyền.</p>
 
-                @foreach($permissions as $group => $items)
-                    <div class="permission-group-card card mb-3">
-                        <div class="card-header">{{ $group }}</div>
-                        <ul class="list-group list-group-flush">
-                            @foreach($items as $p)
-                                <li class="list-group-item d-flex align-items-center py-2">
-                                    <div class="custom-control custom-checkbox flex-grow-1">
-                                        <input type="checkbox"
-                                               class="custom-control-input"
-                                               name="permission_ids[]"
-                                               value="{{ $p->id }}"
-                                               id="perm_{{ $p->id }}"
-                                               {{ in_array($p->id, $permissionIdsForRole) ? 'checked' : '' }}>
-                                        <label class="custom-control-label" for="perm_{{ $p->id }}">{{ $p->label }}</label>
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endforeach
+                <div class="row">
+                    @foreach($permissions as $group => $items)
+                        <div class="col-md-6 mb-3">
+                            <div class="permission-group-card card h-100">
+                                <div class="card-header">{{ $group }}</div>
+                                <ul class="list-group list-group-flush">
+                                    @foreach($items as $p)
+                                        <li class="list-group-item d-flex align-items-center py-2">
+                                            <div class="custom-control custom-checkbox flex-grow-1">
+                                                <input type="checkbox"
+                                                       class="custom-control-input"
+                                                       name="permission_ids[]"
+                                                       value="{{ $p->id }}"
+                                                       id="perm_{{ $p->id }}"
+                                                       {{ in_array($p->id, $permissionIdsForRole) ? 'checked' : '' }}>
+                                                <label class="custom-control-label" for="perm_{{ $p->id }}">{{ $p->label }}</label>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
             <div class="card-footer bg-white border-top py-3">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Lưu quyền</button>
