@@ -13,7 +13,8 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! $request->user()->isAdmin()) {
+        $user = $request->user();
+        if (! $user || (! $user->isAdmin() && ! $user->isTeacher())) {
             abort(403, 'Bạn không có quyền truy cập trang quản trị.');
         }
 

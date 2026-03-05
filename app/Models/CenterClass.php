@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -13,6 +14,7 @@ class CenterClass extends Model
 
     protected $fillable = [
         'center_id',
+        'course_id',
         'name',
         'slug',
         'description',
@@ -33,9 +35,25 @@ class CenterClass extends Model
         return $this->belongsTo(Center::class);
     }
 
+    public function course(): BelongsTo
+    {
+        return $this->belongsTo(Course::class);
+    }
+
     public function students(): HasMany
     {
         return $this->hasMany(Student::class, 'center_class_id')->ordered();
+    }
+
+    public function classSessions(): HasMany
+    {
+        return $this->hasMany(ClassSession::class)->orderBy('session_date');
+    }
+
+    public function teachers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'center_class_teacher', 'center_class_id', 'user_id')
+            ->withTimestamps();
     }
 
     public function scopeActive($query)

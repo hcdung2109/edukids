@@ -11,9 +11,17 @@ use Illuminate\View\View;
 
 class CenterController extends Controller
 {
+    use AuthorizesAdminTrait;
     public function index(Request $request): View
     {
+        $user = auth()->user();
         $centers = Center::query()
+            ->when(! $user->isAdmin(), function ($q) use ($user) {
+                // Giáo viên chỉ thấy trung tâm có ít nhất một lớp mà giáo viên được gán
+                $q->whereHas('classes', function ($q2) use ($user) {
+                    $q2->whereHas('teachers', fn ($q3) => $q3->where('users.id', $user->id));
+                });
+            })
             ->withCount('classes')
             ->when($request->filled('q'), fn ($q) => $q->where('name', 'like', '%' . $request->q . '%')
                 ->orWhere('address', 'like', '%' . $request->q . '%'))
@@ -26,11 +34,13 @@ class CenterController extends Controller
 
     public function create(): View
     {
+        $this->authorizeAdmin();
         return view('admin.centers.create');
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorizeAdmin();
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:500'],
@@ -61,11 +71,13 @@ class CenterController extends Controller
 
     public function edit(Center $center): View
     {
+        $this->authorizeAdmin();
         return view('admin.centers.edit', compact('center'));
     }
 
     public function update(Request $request, Center $center): RedirectResponse
     {
+        $this->authorizeAdmin();
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:500'],
@@ -95,10 +107,12 @@ class CenterController extends Controller
 
     public function destroy(Center $center): RedirectResponse
     {
+        $this->authorizeAdmin();
         if ($center->image) {
             Storage::disk('public')->delete($center->image);
         }
         $center->delete();
         return redirect()->route('admin.centers.index')->with('success', 'Đã xóa trung tâm.');
     }
+
 }

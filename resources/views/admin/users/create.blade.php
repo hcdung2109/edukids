@@ -38,8 +38,9 @@
             <div class="form-group">
                 <label>Vai trò <span class="text-danger">*</span></label>
                 <select name="role" class="form-control @error('role') is-invalid @enderror" required>
-                    <option value="teacher" {{ old('role') === 'teacher' ? 'selected' : '' }}>Teacher</option>
-                    <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                    @foreach($roles as $r)
+                        <option value="{{ $r->name }}" {{ old('role', 'teacher') === $r->name ? 'selected' : '' }}>{{ $r->label }}</option>
+                    @endforeach
                 </select>
                 @error('role')
                     <span class="invalid-feedback">{{ $message }}</span>

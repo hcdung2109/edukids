@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Course extends Model
@@ -22,6 +23,21 @@ class Course extends Model
         return [
             'is_active' => 'boolean',
         ];
+    }
+
+    public function centerClasses(): HasMany
+    {
+        return $this->hasMany(CenterClass::class, 'course_id');
+    }
+
+    public function materials(): HasMany
+    {
+        return $this->hasMany(CourseMaterial::class)->whereNull('parent_id')->orderBy('sort_order')->orderBy('name');
+    }
+
+    public function allMaterials(): HasMany
+    {
+        return $this->hasMany(CourseMaterial::class);
     }
 
     public function scopeActive($query)

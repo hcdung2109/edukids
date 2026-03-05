@@ -59,4 +59,31 @@ class User extends Authenticatable
     {
         return $this->role === self::ROLE_TEACHER;
     }
+
+    public function teachingClasses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(CenterClass::class, 'center_class_teacher', 'user_id', 'center_class_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Kiểm tra user có quyền (permission) theo tên.
+     * Admin luôn có mọi quyền. Các role khác kiểm tra trong role_permissions.
+     */
+    public function hasPermission(string $permissionName): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        $permission = \App\Models\Permission::where('name', $permissionName)->first();
+        if (! $permission) {
+            return false;
+        }
+
+        return \Illuminate\Support\Facades\DB::table('role_permissions')
+            ->where('role', $this->role)
+            ->where('permission_id', $permission->id)
+            ->exists();
+    }
 }

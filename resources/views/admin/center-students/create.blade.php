@@ -48,6 +48,26 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label>Lớp</label>
+                        <input type="text" name="class_name" class="form-control @error('class_name') is-invalid @enderror" value="{{ old('class_name') }}" placeholder="VD: 5A">
+                        @error('class_name')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Trường</label>
+                        <input type="text" name="school_name" class="form-control @error('school_name') is-invalid @enderror" value="{{ old('school_name') }}" placeholder="Trường đang học">
+                        @error('school_name')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label>Họ tên phụ huynh</label>
                         <input type="text" name="parent_name" class="form-control @error('parent_name') is-invalid @enderror" value="{{ old('parent_name') }}">
                         @error('parent_name')
@@ -67,7 +87,7 @@
             </div>
             <div class="form-group">
                 <label>Ghi chú</label>
-                <textarea name="note" rows="2" class="form-control @error('note') is-invalid @enderror">{{ old('note') }}</textarea>
+                <textarea name="note" rows="3" class="form-control @error('note') is-invalid @enderror" placeholder="Ghi chú">{{ old('note') }}</textarea>
                 @error('note')
                     <span class="invalid-feedback">{{ $message }}</span>
                 @enderror

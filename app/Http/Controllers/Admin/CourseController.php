@@ -11,9 +11,12 @@ use Illuminate\View\View;
 
 class CourseController extends Controller
 {
+    use AuthorizesAdminTrait;
+
     public function index(Request $request): View
     {
         $courses = Course::query()
+            ->withCount('allMaterials')
             ->when($request->filled('q'), fn ($q) => $q->where('name', 'like', '%' . $request->q . '%'))
             ->ordered()
             ->paginate(15)
@@ -24,11 +27,13 @@ class CourseController extends Controller
 
     public function create(): View
     {
+        $this->authorizeAdmin();
         return view('admin.courses.create');
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorizeAdmin();
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
@@ -54,11 +59,13 @@ class CourseController extends Controller
 
     public function edit(Course $course): View
     {
+        $this->authorizeAdmin();
         return view('admin.courses.edit', compact('course'));
     }
 
     public function update(Request $request, Course $course): RedirectResponse
     {
+        $this->authorizeAdmin();
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
@@ -85,6 +92,7 @@ class CourseController extends Controller
 
     public function destroy(Course $course): RedirectResponse
     {
+        $this->authorizeAdmin();
         if ($course->image) {
             Storage::disk('public')->delete($course->image);
         }

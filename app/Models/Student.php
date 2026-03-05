@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Student extends Model
 {
@@ -13,6 +14,8 @@ class Student extends Model
         'email',
         'phone',
         'date_of_birth',
+        'class_name',
+        'school_name',
         'parent_name',
         'parent_phone',
         'note',
@@ -29,6 +32,11 @@ class Student extends Model
     public function centerClass(): BelongsTo
     {
         return $this->belongsTo(CenterClass::class);
+    }
+
+    public function sessionAttendances(): HasMany
+    {
+        return $this->hasMany(SessionAttendance::class);
     }
 
     public function scopeOrdered($query)

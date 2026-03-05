@@ -15,6 +15,14 @@ Trang quản trị (AdminLTE):
 - Quản lý danh sách lớp học theo trung tâm
 - Quản lý danh sách học viên theo lớp học của trung tâm
 - Quản lý danh sách buổi học theo lớp của trung tâm, có thể xem theo dạng lịch tháng
-- Chức năng điểm danh học viên của buổi học
+- Chức năng điểm danh học viên của buổi học, xuất file excel điểm danh
 - Quản lý danh sách file tài liệu tải lên (word , pdf , powerpoint ...) , gán quyền xem tài liệu theo từng lớp học, tài liệu chỉ có quyền xem online không thẻ tải
-- Quản lý danh sách tài khoản , có 2 loại role : admin, teacher
+- Màn hình dashboard thể hiện danh sách các trung tâm 
+- Chức năng quản lý công cụ học :  tên công cụ , số lượng, ghi chú, trong đó công cụ cần biết được ở trung tâm nào, lớp nào, quản lý ai đang quản lý
+- Thêm chức năng phân quyền
+
+
+laravel note
+   php artisan config:clear
+   php artisan cache:clear
+   php artisan view:clear

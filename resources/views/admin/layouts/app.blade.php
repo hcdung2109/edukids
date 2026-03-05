@@ -50,36 +50,62 @@
                             <p>Dashboard</p>
                         </a>
                     </li>
+                    @if(auth()->user()->hasPermission('users.manage'))
                     <li class="nav-item">
                         <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
                             <p>Quản lý tài khoản</p>
                         </a>
                     </li>
+                    @endif
+                    @if(auth()->user()->isAdmin())
+                    <li class="nav-item">
+                        <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-tag"></i>
+                            <p>Quản lý vai trò</p>
+                        </a>
+                    </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('courses.view') || auth()->user()->hasPermission('courses.manage'))
                     <li class="nav-item">
                         <a href="{{ route('admin.courses.index') }}" class="nav-link {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-graduation-cap"></i>
                             <p>Quản lý khóa học</p>
                         </a>
                     </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('centers.view') || auth()->user()->hasPermission('centers.manage'))
                     <li class="nav-item">
                         <a href="{{ route('admin.centers.index') }}" class="nav-link {{ request()->routeIs('admin.centers.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-building"></i>
                             <p>Quản lý trung tâm</p>
                         </a>
                     </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('news.manage'))
                     <li class="nav-item">
                         <a href="{{ route('admin.news.index') }}" class="nav-link {{ request()->routeIs('admin.news.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-newspaper"></i>
                             <p>Tin tức & Sự kiện</p>
                         </a>
                     </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('site.manage'))
                     <li class="nav-item">
                         <a href="{{ route('admin.site.edit') }}" class="nav-link {{ request()->routeIs('admin.site.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-cog"></i>
                             <p>Quản lý site</p>
                         </a>
                     </li>
+                    @endif
+                    @if(auth()->user()->isAdmin())
+                    <li class="nav-item">
+                        <a href="{{ route('admin.permissions.index') }}" class="nav-link {{ request()->routeIs('admin.permissions.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-key"></i>
+                            <p>Phân quyền</p>
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </nav>
         </div>

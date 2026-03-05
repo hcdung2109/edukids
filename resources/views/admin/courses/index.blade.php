@@ -7,7 +7,9 @@
     <div class="card-header">
         <h3 class="card-title">Danh sách khóa học</h3>
         <div class="card-tools">
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('admin.courses.create') }}" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Thêm khóa học</a>
+            @endif
         </div>
     </div>
     <div class="card-body">
@@ -28,6 +30,7 @@
                     <th>Icon</th>
                     <th>Ảnh</th>
                     <th>Trạng thái</th>
+                    <th>Tài liệu</th>
                     <th style="width: 120px">Thao tác</th>
                 </tr>
             </thead>
@@ -53,17 +56,22 @@
                             @endif
                         </td>
                         <td>
+                            <a href="{{ route('admin.courses.materials.index', $item) }}" class="btn btn-sm btn-info"><i class="fas fa-folder-open"></i> Tài liệu ({{ $item->all_materials_count ?? 0 }})</a>
+                        </td>
+                        <td>
+                            @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.courses.edit', $item) }}" class="btn btn-sm btn-default"><i class="fas fa-edit"></i></a>
                             <form action="{{ route('admin.courses.destroy', $item) }}" method="POST" class="d-inline" onsubmit="return confirm('Xóa khóa học này?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                             </form>
+                            @endif
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted">Chưa có khóa học nào.</td>
+                        <td colspan="8" class="text-center text-muted">Chưa có khóa học nào.</td>
                     </tr>
                 @endforelse
             </tbody>

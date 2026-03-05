@@ -18,8 +18,9 @@
             <div class="col-md-3">
                 <select name="role" class="form-control">
                     <option value="">Tất cả vai trò</option>
-                    <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                    <option value="teacher" {{ request('role') === 'teacher' ? 'selected' : '' }}>Teacher</option>
+                    @foreach($roles as $r)
+                        <option value="{{ $r->name }}" {{ request('role') === $r->name ? 'selected' : '' }}>{{ $r->label }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-md-2">
@@ -44,10 +45,11 @@
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
                         <td>
+                            @php $r = $roles->firstWhere('name', $user->role); @endphp
                             @if($user->role === 'admin')
-                                <span class="badge badge-danger">Admin</span>
+                                <span class="badge badge-danger">{{ $r ? $r->label : 'Admin' }}</span>
                             @else
-                                <span class="badge badge-info">Teacher</span>
+                                <span class="badge badge-info">{{ $r ? $r->label : $user->role }}</span>
                             @endif
                         </td>
                         <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>

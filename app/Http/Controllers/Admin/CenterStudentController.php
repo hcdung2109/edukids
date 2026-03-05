@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CenterStudentController extends Controller
 {
+    use AuthorizesAdminTrait;
+
     public function index(Center $center, CenterClass $class): View
     {
         $center_class = $class;
@@ -28,6 +30,7 @@ class CenterStudentController extends Controller
 
     public function create(Center $center, CenterClass $class): View
     {
+        $this->authorizeAdmin();
         $center_class = $class;
         if ($center_class->center_id !== $center->id) {
             abort(404);
@@ -37,6 +40,7 @@ class CenterStudentController extends Controller
 
     public function store(Request $request, Center $center, CenterClass $class): RedirectResponse
     {
+        $this->authorizeAdmin();
         $center_class = $class;
         if ($center_class->center_id !== $center->id) {
             abort(404);
@@ -46,6 +50,8 @@ class CenterStudentController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'date_of_birth' => ['nullable', 'date'],
+            'class_name' => ['nullable', 'string', 'max:100'],
+            'school_name' => ['nullable', 'string', 'max:255'],
             'parent_name' => ['nullable', 'string', 'max:255'],
             'parent_phone' => ['nullable', 'string', 'max:50'],
             'note' => ['nullable', 'string'],
@@ -62,6 +68,7 @@ class CenterStudentController extends Controller
 
     public function edit(Center $center, CenterClass $class, Student $student): View
     {
+        $this->authorizeAdmin();
         $center_class = $class;
         if ($center_class->center_id !== $center->id || $student->center_class_id !== $center_class->id) {
             abort(404);
@@ -71,6 +78,7 @@ class CenterStudentController extends Controller
 
     public function update(Request $request, Center $center, CenterClass $class, Student $student): RedirectResponse
     {
+        $this->authorizeAdmin();
         $center_class = $class;
         if ($center_class->center_id !== $center->id || $student->center_class_id !== $center_class->id) {
             abort(404);
@@ -80,6 +88,8 @@ class CenterStudentController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'date_of_birth' => ['nullable', 'date'],
+            'class_name' => ['nullable', 'string', 'max:100'],
+            'school_name' => ['nullable', 'string', 'max:255'],
             'parent_name' => ['nullable', 'string', 'max:255'],
             'parent_phone' => ['nullable', 'string', 'max:50'],
             'note' => ['nullable', 'string'],
@@ -94,6 +104,7 @@ class CenterStudentController extends Controller
 
     public function destroy(Center $center, CenterClass $class, Student $student): RedirectResponse
     {
+        $this->authorizeAdmin();
         $center_class = $class;
         if ($center_class->center_id !== $center->id || $student->center_class_id !== $center_class->id) {
             abort(404);
@@ -105,6 +116,7 @@ class CenterStudentController extends Controller
 
     public function importForm(Center $center, CenterClass $center_class): View
     {
+        $this->authorizeAdmin();
         if ($center_class->center_id !== $center->id) {
             abort(404);
         }
@@ -113,17 +125,18 @@ class CenterStudentController extends Controller
 
     public function downloadTemplate(Center $center, CenterClass $center_class): StreamedResponse
     {
+        $this->authorizeAdmin();
         if ($center_class->center_id !== $center->id) {
             abort(404);
         }
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Danh sách học viên');
-        $headers = ['Họ tên', 'Email', 'Điện thoại', 'Ngày sinh', 'Phụ huynh', 'SĐT phụ huynh', 'Ghi chú'];
+        $headers = ['Họ tên', 'Email', 'Điện thoại', 'Ngày sinh', 'Lớp', 'Trường', 'Phụ huynh', 'SĐT phụ huynh', 'Ghi chú'];
         $sheet->fromArray($headers, null, 'A1');
-        $sheet->fromArray(['Nguyễn Văn A', 'email@example.com', '0901234567', '2016-05-15', 'Nguyễn Văn Bố', '0912345678', 'Ví dụ dòng 1'], null, 'A2');
-        $sheet->fromArray(['Trần Thị B', '', '', '', '', '', ''], null, 'A3');
-        foreach (range('A', 'G') as $col) {
+        $sheet->fromArray(['Nguyễn Văn A', 'email@example.com', '0901234567', '2016-05-15', '5A', 'TH Nguyễn Huệ', 'Nguyễn Văn Bố', '0912345678', 'Ví dụ dòng 1'], null, 'A2');
+        $sheet->fromArray(['Trần Thị B', '', '', '', '', '', '', '', ''], null, 'A3');
+        foreach (range('A', 'I') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
         $writer = new Xlsx($spreadsheet);
@@ -137,6 +150,7 @@ class CenterStudentController extends Controller
 
     public function import(Request $request, Center $center, CenterClass $center_class): RedirectResponse
     {
+        $this->authorizeAdmin();
         if ($center_class->center_id !== $center->id) {
             abort(404);
         }
@@ -174,6 +188,8 @@ class CenterStudentController extends Controller
         $emailCol = $this->findColumnIndex($header, ['Email', 'E-mail']);
         $phoneCol = $this->findColumnIndex($header, ['Điện thoại', 'SĐT', 'Phone', 'Số điện thoại']);
         $dobCol = $this->findColumnIndex($header, ['Ngày sinh', 'Date of birth', 'DOB']);
+        $classCol = $this->findColumnIndex($header, ['Lớp', 'Class']);
+        $schoolCol = $this->findColumnIndex($header, ['Trường', 'School']);
         $parentNameCol = $this->findColumnIndex($header, ['Phụ huynh', 'Họ tên phụ huynh', 'Parent']);
         $parentPhoneCol = $this->findColumnIndex($header, ['SĐT phụ huynh', 'Điện thoại phụ huynh']);
         $noteCol = $this->findColumnIndex($header, ['Ghi chú', 'Note']);
@@ -194,6 +210,8 @@ class CenterStudentController extends Controller
                 'email' => $emailCol !== null ? $this->cleanCell($row[$emailCol] ?? null) : null,
                 'phone' => $phoneCol !== null ? $this->cleanCell($row[$phoneCol] ?? null) : null,
                 'date_of_birth' => $dobCol !== null ? $this->parseDate($row[$dobCol] ?? null) : null,
+                'class_name' => $classCol !== null ? $this->cleanCell($row[$classCol] ?? null) : null,
+                'school_name' => $schoolCol !== null ? $this->cleanCell($row[$schoolCol] ?? null) : null,
                 'parent_name' => $parentNameCol !== null ? $this->cleanCell($row[$parentNameCol] ?? null) : null,
                 'parent_phone' => $parentPhoneCol !== null ? $this->cleanCell($row[$parentPhoneCol] ?? null) : null,
                 'note' => $noteCol !== null ? $this->cleanCell($row[$noteCol] ?? null) : null,

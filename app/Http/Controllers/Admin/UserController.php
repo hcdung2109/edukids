@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,9 @@ class UserController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('admin.users.index', compact('users'));
+        $roles = Role::ordered()->get();
+
+        return view('admin.users.index', compact('users', 'roles'));
     }
 
     /**
@@ -35,7 +38,8 @@ class UserController extends Controller
      */
     public function create(): View
     {
-        return view('admin.users.create');
+        $roles = Role::ordered()->get();
+        return view('admin.users.create', compact('roles'));
     }
 
     /**
@@ -43,11 +47,12 @@ class UserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $roleNames = Role::pluck('name')->toArray();
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Password::defaults()],
-            'role' => ['required', 'in:admin,teacher'],
+            'role' => ['required', 'in:' . implode(',', $roleNames)],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -62,7 +67,8 @@ class UserController extends Controller
      */
     public function edit(User $user): View
     {
-        return view('admin.users.edit', compact('user'));
+        $roles = Role::ordered()->get();
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
     /**
@@ -70,11 +76,12 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): RedirectResponse
     {
+        $roleNames = Role::pluck('name')->toArray();
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'confirmed', Password::defaults()],
-            'role' => ['required', 'in:admin,teacher'],
+            'role' => ['required', 'in:' . implode(',', $roleNames)],
         ]);
 
         if (! empty($validated['password'])) {
