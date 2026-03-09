@@ -7,6 +7,7 @@ use App\Models\Center;
 use App\Models\CenterClass;
 use App\Models\ClassSession;
 use App\Models\SessionAttendance;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -36,6 +37,7 @@ class ClassSessionController extends Controller
         $endStr = $end->toDateString();
 
         $sessionsCollection = $center_class->classSessions()
+            ->withCount('attendances')
             ->selectRaw('class_sessions.*, DATE(session_date) as session_date_str')
             ->whereBetween('session_date', [$startStr, $endStr])
             ->orderBy('session_date')
@@ -57,6 +59,8 @@ class ClassSessionController extends Controller
 
         $totalSessionsInMonth = $sessionsCollection->count();
         $canTakeAttendance = $this->canManageAttendance($center_class);
+        $teachers = User::where('role', User::ROLE_TEACHER)->orderBy('name')->get(['id', 'name']);
+        $defaultTeacherId = $center_class->teachers()->first()?->id;
 
         return view('admin.class-sessions.index', compact(
             'center',
@@ -68,7 +72,9 @@ class ClassSessionController extends Controller
             'next',
             'weeks',
             'totalSessionsInMonth',
-            'canTakeAttendance'
+            'canTakeAttendance',
+            'teachers',
+            'defaultTeacherId'
         ));
     }
 
@@ -92,13 +98,20 @@ class ClassSessionController extends Controller
             'session_date' => ['required', 'date'],
             'time_slot' => ['nullable', 'string', 'max:50'],
             'note' => ['nullable', 'string', 'max:255'],
+            'hours_per_session' => ['nullable', 'numeric', 'min:0.25', 'max:24'],
+            'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
         ]);
 
         $dateStr = Carbon::parse($validated['session_date'])->format('Y-m-d');
+        $hours = isset($validated['hours_per_session']) ? (float) $validated['hours_per_session'] : null;
+        $teacherId = isset($validated['teacher_id']) && $validated['teacher_id'] ? (int) $validated['teacher_id'] : $center_class->teachers()->first()?->id;
+
         $center_class->classSessions()->create([
             'session_date' => $dateStr,
             'time_slot' => $validated['time_slot'] ?? null,
             'note' => $validated['note'] ?? null,
+            'hours_per_session' => $hours,
+            'teacher_id' => $teacherId,
         ]);
 
         $d = Carbon::parse($validated['session_date']);
@@ -127,6 +140,49 @@ class ClassSessionController extends Controller
             'year' => $d->year,
             'month' => $d->month,
         ])->with('success', 'Đã xóa buổi học.');
+    }
+
+    public function update(Request $request, Center $center, CenterClass $center_class, ClassSession $session): RedirectResponse|JsonResponse
+    {
+        if ($center_class->center_id !== $center->id || $session->center_class_id !== $center_class->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'hours_per_session' => ['nullable', 'numeric', 'min:0.25', 'max:24'],
+            'time_slot' => ['nullable', 'string', 'max:50'],
+            'note' => ['nullable', 'string', 'max:255'],
+            'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
+
+        $data = [];
+        if (array_key_exists('hours_per_session', $validated)) {
+            $data['hours_per_session'] = $validated['hours_per_session'] !== null && $validated['hours_per_session'] !== ''
+                ? (float) $validated['hours_per_session']
+                : null;
+        }
+        if (array_key_exists('time_slot', $validated)) {
+            $data['time_slot'] = $validated['time_slot'] ?: null;
+        }
+        if (array_key_exists('note', $validated)) {
+            $data['note'] = $validated['note'] ?: null;
+        }
+        if (array_key_exists('teacher_id', $validated)) {
+            $data['teacher_id'] = $validated['teacher_id'] ?: null;
+        }
+        $session->update($data);
+
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'hours_per_session' => $session->hours_per_session]);
+        }
+
+        $d = $session->session_date;
+        return redirect()->route('admin.centers.classes.sessions.index', [
+            $center,
+            $center_class,
+            'year' => $d->year,
+            'month' => $d->month,
+        ])->with('success', 'Đã cập nhật buổi học.');
     }
 
     /** Xóa tất cả buổi học trong một ngày. */
@@ -192,12 +248,23 @@ class ClassSessionController extends Controller
             return response()->json(['sessions' => []]);
         }
         $date = Carbon::parse($dateStr)->format('Y-m-d');
+        $classDefaultHours = $center_class->hours_per_session;
         $sessions = $center_class->classSessions()
+            ->with('teacher:id,name')
+            ->withCount('attendances')
             ->whereDate('session_date', $date)
             ->orderBy('id')
-            ->get(['id', 'session_date', 'time_slot', 'note'])
-            ->map(fn ($s) => ['id' => $s->id, 'time_slot' => $s->time_slot ?? '', 'note' => $s->note ?? '']);
-        return response()->json(['sessions' => $sessions]);
+            ->get()
+            ->map(fn ($s) => [
+                'id' => $s->id,
+                'time_slot' => $s->time_slot ?? '',
+                'note' => $s->note ?? '',
+                'hours_per_session' => $s->hours_per_session !== null ? (float) $s->hours_per_session : null,
+                'teacher_id' => $s->teacher_id,
+                'teacher_name' => $s->teacher?->name ?? '',
+                'has_attendance' => (int) ($s->attendances_count ?? 0) > 0,
+            ]);
+        return response()->json(['sessions' => $sessions, 'class_default_hours' => $classDefaultHours !== null ? (float) $classDefaultHours : null]);
     }
 
     /** Trang điểm danh: bảng học viên × buổi học (mở tab mới). */

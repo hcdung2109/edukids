@@ -35,7 +35,7 @@
                     <th>Email</th>
                     <th>Vai trò</th>
                     <th>Ngày tạo</th>
-                    <th style="width: 140px">Thao tác</th>
+                    <th style="width: 200px">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,6 +54,9 @@
                         </td>
                         <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
                         <td>
+                            @if($user->role === \App\Models\User::ROLE_TEACHER)
+                                <a href="{{ route('admin.users.statistics', $user) }}" class="btn btn-sm btn-info" title="Thống kê"><i class="fas fa-chart-bar"></i> Thống kê</a>
+                            @endif
                             <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-default"><i class="fas fa-edit"></i></a>
                             @if($user->id !== auth()->id())
                                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa tài khoản này?');">

@@ -50,11 +50,19 @@
                             <p>Dashboard</p>
                         </a>
                     </li>
+                    @if(auth()->user()->hasPermission('centers.view') || auth()->user()->hasPermission('centers.manage'))
+                    <li class="nav-item">
+                        <a href="{{ route('admin.centers.index') }}" class="nav-link {{ request()->routeIs('admin.centers.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-building"></i>
+                            <p>Quản lý trung tâm</p>
+                        </a>
+                    </li>
+                    @endif
                     @if(auth()->user()->hasPermission('users.manage'))
                     <li class="nav-item">
                         <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
-                            <p>Quản lý tài khoản</p>
+                            <p>Quản lý giáo viên</p>
                         </a>
                     </li>
                     @endif
@@ -71,14 +79,6 @@
                         <a href="{{ route('admin.courses.index') }}" class="nav-link {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-graduation-cap"></i>
                             <p>Quản lý khóa học</p>
-                        </a>
-                    </li>
-                    @endif
-                    @if(auth()->user()->hasPermission('centers.view') || auth()->user()->hasPermission('centers.manage'))
-                    <li class="nav-item">
-                        <a href="{{ route('admin.centers.index') }}" class="nav-link {{ request()->routeIs('admin.centers.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-building"></i>
-                            <p>Quản lý trung tâm</p>
                         </a>
                     </li>
                     @endif

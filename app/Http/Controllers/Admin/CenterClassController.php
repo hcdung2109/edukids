@@ -52,12 +52,13 @@ class CenterClassController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'course_id' => ['nullable', 'integer', 'exists:courses,id'],
-            'teacher_ids' => ['nullable', 'array'],
-            'teacher_ids.*' => ['integer', 'exists:users,id'],
+            'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
             'description' => ['nullable', 'string'],
             'schedule' => ['nullable', 'string', 'max:255'],
+            'hours_per_session' => ['required', 'numeric', 'min:0.25', 'max:24'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
+            'status' => ['nullable', 'string', 'in:not_started,in_progress,paused,completed'],
         ], [
             'name.required' => 'Tên lớp học không được để trống.',
         ]);
@@ -65,9 +66,11 @@ class CenterClassController extends Controller
         $validated['course_id'] = $validated['course_id'] ?? null;
         $validated['is_active'] = $request->boolean('is_active');
         $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
+        $validated['hours_per_session'] = (float) $validated['hours_per_session'];
+        $validated['status'] = $validated['status'] ?? CenterClass::STATUS_NOT_STARTED;
 
         $center_class = $center->classes()->create($validated);
-        $this->syncTeachers($center_class, $request->input('teacher_ids', []));
+        $this->syncTeachers($center_class, $request->filled('teacher_id') ? [(int) $request->input('teacher_id')] : []);
 
         return redirect()->route('admin.centers.classes.index', $center)
             ->with('success', 'Đã thêm lớp học.');
@@ -95,19 +98,22 @@ class CenterClassController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'course_id' => ['nullable', 'integer', 'exists:courses,id'],
-            'teacher_ids' => ['nullable', 'array'],
-            'teacher_ids.*' => ['integer', 'exists:users,id'],
+            'teacher_id' => ['nullable', 'integer', 'exists:users,id'],
             'description' => ['nullable', 'string'],
             'schedule' => ['nullable', 'string', 'max:255'],
+            'hours_per_session' => ['required', 'numeric', 'min:0.25', 'max:24'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
+            'status' => ['nullable', 'string', 'in:not_started,in_progress,paused,completed'],
         ]);
         $validated['is_active'] = $request->boolean('is_active');
         $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
         $validated['course_id'] = $validated['course_id'] ?? null;
+        $validated['hours_per_session'] = (float) $validated['hours_per_session'];
+        $validated['status'] = $validated['status'] ?? CenterClass::STATUS_NOT_STARTED;
 
         $center_class->update($validated);
-        $this->syncTeachers($center_class, $request->input('teacher_ids', []));
+        $this->syncTeachers($center_class, $request->filled('teacher_id') ? [(int) $request->input('teacher_id')] : []);
 
         return redirect()->route('admin.centers.classes.index', $center)
             ->with('success', 'Đã cập nhật lớp học.');

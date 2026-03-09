@@ -10,6 +10,11 @@ use Illuminate\Support\Str;
 
 class CenterClass extends Model
 {
+    public const STATUS_NOT_STARTED = 'not_started';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_PAUSED = 'paused';
+    public const STATUS_COMPLETED = 'completed';
+
     protected $table = 'center_classes';
 
     protected $fillable = [
@@ -19,14 +24,32 @@ class CenterClass extends Model
         'slug',
         'description',
         'schedule',
+        'hours_per_session',
         'sort_order',
         'is_active',
+        'status',
     ];
+
+    public static function statusOptions(): array
+    {
+        return [
+            self::STATUS_NOT_STARTED => 'Chưa bắt đầu',
+            self::STATUS_IN_PROGRESS => 'Đang học',
+            self::STATUS_PAUSED => 'Đang tạm dừng',
+            self::STATUS_COMPLETED => 'Hoàn thành',
+        ];
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return self::statusOptions()[$this->status] ?? $this->status;
+    }
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'hours_per_session' => 'float',
         ];
     }
 

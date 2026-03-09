@@ -18,8 +18,13 @@ Trang quản trị (AdminLTE):
 - Chức năng điểm danh học viên của buổi học, xuất file excel điểm danh
 - Quản lý danh sách file tài liệu tải lên (word , pdf , powerpoint ...) , gán quyền xem tài liệu theo từng lớp học, tài liệu chỉ có quyền xem online không thẻ tải
 - Màn hình dashboard thể hiện danh sách các trung tâm 
-- Chức năng quản lý công cụ học :  tên công cụ , số lượng, ghi chú, trong đó công cụ cần biết được ở trung tâm nào, lớp nào, quản lý ai đang quản lý
+- Chức năng quản lý công cụ học :  tên công cụ , số lượng, ghi chú, trong đó công cụ được gán trung tâm nào, lớp nào, quản lý ai đang quản lý
 - Thêm chức năng phân quyền
+- Cho phép hiển thị cả thời gian ca học nếu có ở trên lịch ví dụ hiển thị label 8h-12h ở trên ngày bất kỳ của lịch
+- Chức năng thông kê trong màn hình dashboad : 
+Hiển thị bảng danh sách giáo viên - thống kê số dậy học của giáo viên trong tháng
+
+- khi giáo viên điểm danh học viên của buổi học, => tự động lưu điểm danh giáo viên , tại màn hình dashboard của admin, hiển thị bảng thống kê số buổi giảng dậy trong mỗi tháng của giáo viên đó, cần thêm bộ lọc (gồm filter theo khoảng thời gian, option giáo viên , nút tìm kiếm), 
 
 
 laravel note

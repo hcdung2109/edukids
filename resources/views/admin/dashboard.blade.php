@@ -42,6 +42,18 @@
     padding-top: 1rem;
     border-top: 1px solid #f0f0f0;
 }
+/* Nút thao tác Lớp đang học: hàng ngang, có khoảng cách */
+.dashboard-class-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+.dashboard-class-actions .btn {
+    padding: 0.35rem 0.6rem;
+    margin: 0;
+    white-space: nowrap;
+}
 </style>
 @endpush
 
@@ -56,6 +68,62 @@
         </div>
     </div>
 </div>
+
+@if(isset($classesInProgress) && $classesInProgress->isNotEmpty())
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <h5 class="mb-0 font-weight-bold text-dark"><i class="fas fa-chalkboard-teacher mr-1"></i> Lớp đang học</h5>
+                <a href="{{ route('admin.centers.index') }}" class="btn btn-sm btn-outline-primary">Xem tất cả lớp</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 28%;">Lớp học</th>
+                                <th style="width: 25%;">Trung tâm</th>
+                                <th>Giáo viên đang dạy</th>
+                                <th class="text-nowrap" style="min-width: 220px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($classesInProgress as $class)
+                            <tr>
+                                <td>
+                                    <a href="{{ route('admin.centers.classes.sessions.index', [$class->center, $class]) }}">{{ $class->name }}</a>
+                                    @if($class->course)
+                                        <br><small class="text-muted">{{ $class->course->name }}</small>
+                                    @endif
+                                </td>
+                                <td>{{ $class->center->name ?? '—' }}</td>
+                                <td>
+                                    @forelse($class->teachers as $teacher)
+                                        <span class="badge badge-primary badge-sm mr-1">{{ $teacher->name }}</span>
+                                    @empty
+                                        <span class="text-muted">Chưa gán</span>
+                                    @endforelse
+                                </td>
+                                <td>
+                                    <div class="dashboard-class-actions">
+                                        @if($class->course)
+                                            <a href="{{ route('admin.courses.materials.index', $class->course) }}" class="btn btn-sm btn-outline-secondary" title="Tài liệu"><i class="fas fa-file-alt mr-1"></i> Tài liệu</a>
+                                        @endif
+                                        <a href="{{ route('admin.centers.classes.attendance.index', [$class->center, $class]) }}" class="btn btn-sm btn-outline-info" title="Điểm danh"><i class="fas fa-clipboard-check mr-1"></i> Điểm danh</a>
+                                        <a href="{{ route('admin.centers.classes.sessions.index', [$class->center, $class]) }}" class="btn btn-sm btn-outline-primary" title="Lịch học"><i class="fas fa-calendar-alt mr-1"></i> Lịch học</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 <div class="row mt-4">
     <div class="col-12 d-flex justify-content-between align-items-center flex-wrap mb-3">

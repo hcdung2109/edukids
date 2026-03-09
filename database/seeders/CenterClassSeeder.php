@@ -47,6 +47,7 @@ class CenterClassSeeder extends Seeder
                     [
                         'description' => $data['description'] ?? null,
                         'schedule' => $data['schedule'] ?? null,
+                        'hours_per_session' => 2,
                         'sort_order' => $data['sort_order'] ?? $index + 1,
                         'is_active' => true,
                     ]

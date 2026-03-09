@@ -46,6 +46,23 @@
                     <span class="invalid-feedback">{{ $message }}</span>
                 @enderror
             </div>
+            <div class="form-group">
+                <label>Lương/giờ</label>
+                <input type="hidden" name="salary_per_hour" id="salary_per_hour" value="{{ old('salary_per_hour') }}">
+                <input
+                    type="text"
+                    inputmode="numeric"
+                    id="salary_per_hour_display"
+                    class="form-control @error('salary_per_hour') is-invalid @enderror"
+                    value="{{ old('salary_per_hour', '') }}"
+                    placeholder="VD: 100.000"
+                    autocomplete="off"
+                >
+                <small class="form-text text-muted">Tự động thêm dấu phân tách hàng nghìn (VD: 100.000). Có thể để trống.</small>
+                @error('salary_per_hour')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
         </div>
         <div class="card-footer">
             <button type="submit" class="btn btn-primary">Lưu</button>
@@ -53,4 +70,33 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+(function() {
+    function formatThousands(raw) {
+        if (!raw) return '';
+        var digits = String(raw).replace(/[^\d]/g, '');
+        if (!digits) return '';
+        return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var display = document.getElementById('salary_per_hour_display');
+        var hidden = document.getElementById('salary_per_hour');
+        if (!display || !hidden) return;
+
+        function sync() {
+            var formatted = formatThousands(display.value);
+            display.value = formatted;
+            hidden.value = formatted ? formatted.replace(/\./g, '') : '';
+        }
+
+        display.addEventListener('input', sync);
+        display.addEventListener('blur', sync);
+        sync();
+    });
+})();
+</script>
+@endpush
 @endsection

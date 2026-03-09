@@ -51,11 +51,21 @@ Route::middleware('auth')->group(function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/', function () {
         $centers = \App\Models\Center::withCount('classes')->ordered()->get();
-        return view('admin.dashboard', compact('centers'));
+        $user = auth()->user();
+        $classesInProgress = \App\Models\CenterClass::where('status', \App\Models\CenterClass::STATUS_IN_PROGRESS)
+            ->with(['center', 'course', 'teachers'])
+            ->when(! $user->isAdmin(), function ($q) use ($user) {
+                $q->whereHas('teachers', fn ($t) => $t->where('users.id', $user->id));
+            })
+            ->ordered()
+            ->get();
+        return view('admin.dashboard', compact('centers', 'classesInProgress'));
     })->name('dashboard');
 
     // Chỉ admin: quản lý tài khoản, vai trò, tin tức, cấu hình site, phân quyền
     Route::middleware('admin-only')->group(function () {
+        Route::get('users/{user}/statistics', [AdminUserController::class, 'statistics'])->name('users.statistics');
+        Route::put('users/{user}/salary-paid', [AdminUserController::class, 'updateSalaryPaid'])->name('users.salary-paid');
         Route::resource('users', AdminUserController::class)->except(['show']);
         Route::resource('roles', AdminRoleController::class)->except(['show']);
         Route::resource('news', AdminNewsController::class)->except(['show']);
@@ -78,6 +88,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('centers/{center}/classes/{center_class}/sessions', [AdminClassSessionController::class, 'index'])->name('centers.classes.sessions.index');
     Route::get('centers/{center}/classes/{center_class}/sessions/by-date', [AdminClassSessionController::class, 'sessionsByDate'])->name('centers.classes.sessions.by-date');
     Route::post('centers/{center}/classes/{center_class}/sessions', [AdminClassSessionController::class, 'store'])->name('centers.classes.sessions.store');
+    Route::put('centers/{center}/classes/{center_class}/sessions/{session}', [AdminClassSessionController::class, 'update'])->name('centers.classes.sessions.update');
     Route::delete('centers/{center}/classes/{center_class}/sessions/{session}', [AdminClassSessionController::class, 'destroy'])->name('centers.classes.sessions.destroy');
     Route::post('centers/{center}/classes/{center_class}/sessions/destroy-by-date', [AdminClassSessionController::class, 'destroyByDate'])->name('centers.classes.sessions.destroy-by-date');
     Route::post('centers/{center}/classes/{center_class}/sessions/destroy-all', [AdminClassSessionController::class, 'destroyAll'])->name('centers.classes.sessions.destroy-all');

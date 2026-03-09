@@ -37,14 +37,15 @@
                 <a href="#" id="linkViewMaterials" class="btn btn-sm btn-outline-secondary mt-1" target="_blank" style="display: none;"><i class="fas fa-folder-open"></i> Xem tài liệu khóa học</a>
             </div>
             <div class="form-group">
-                <label>Giáo viên <span class="text-muted font-weight-normal">(chọn nhiều)</span></label>
-                <select name="teacher_ids[]" id="teacher_ids" class="form-control" multiple>
+                <label>Giáo viên</label>
+                <select name="teacher_id" id="teacher_id" class="form-control @error('teacher_id') is-invalid @enderror">
+                    <option value="">-- Không chọn --</option>
                     @foreach($teachers as $t)
-                        <option value="{{ $t->id }}" {{ in_array($t->id, old('teacher_ids', $center_class->teachers->pluck('id')->toArray())) ? 'selected' : '' }}>{{ $t->name }}</option>
+                        <option value="{{ $t->id }}" {{ old('teacher_id', $center_class->teachers->first()?->id) == $t->id ? 'selected' : '' }}>{{ $t->name }}</option>
                     @endforeach
                 </select>
-                <small class="form-text text-muted">Gõ để tìm, chọn nhiều giáo viên.</small>
-                @error('teacher_ids.*')
+                <small class="form-text text-muted">Chọn một giáo viên cho lớp.</small>
+                @error('teacher_id')
                     <span class="invalid-feedback d-block">{{ $message }}</span>
                 @enderror
             </div>
@@ -52,6 +53,34 @@
                 <label>Lịch học</label>
                 <input type="text" name="schedule" class="form-control @error('schedule') is-invalid @enderror" value="{{ old('schedule', $center_class->schedule) }}">
                 @error('schedule')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="form-group">
+                <label>Số giờ mỗi buổi học <span class="text-danger">*</span></label>
+                <input
+                    type="number"
+                    name="hours_per_session"
+                    class="form-control @error('hours_per_session') is-invalid @enderror"
+                    value="{{ old('hours_per_session', $center_class->hours_per_session ?? 2) }}"
+                    min="0.25"
+                    max="24"
+                    step="0.25"
+                    required
+                >
+                <small class="form-text text-muted">Dùng để hiển thị mặc định khi đánh dấu buổi học.</small>
+                @error('hours_per_session')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="form-group">
+                <label>Trạng thái lớp học</label>
+                <select name="status" class="form-control @error('status') is-invalid @enderror">
+                    @foreach(\App\Models\CenterClass::statusOptions() as $value => $label)
+                        <option value="{{ $value }}" {{ old('status', $center_class->status ?? \App\Models\CenterClass::STATUS_NOT_STARTED) == $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+                @error('status')
                     <span class="invalid-feedback">{{ $message }}</span>
                 @enderror
             </div>
@@ -86,8 +115,8 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
 <script>
 $(function() {
-    $('#teacher_ids').select2({
-        placeholder: 'Chọn một hoặc nhiều giáo viên',
+    $('#teacher_id').select2({
+        placeholder: 'Chọn một giáo viên',
         allowClear: true,
         width: '100%'
     });
