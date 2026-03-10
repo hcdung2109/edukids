@@ -27,6 +27,16 @@ Hiển thị bảng danh sách giáo viên - thống kê số dậy học của 
 - khi giáo viên điểm danh học viên của buổi học, => tự động lưu điểm danh giáo viên , tại màn hình dashboard của admin, hiển thị bảng thống kê số buổi giảng dậy trong mỗi tháng của giáo viên đó, cần thêm bộ lọc (gồm filter theo khoảng thời gian, option giáo viên , nút tìm kiếm), 
 
 
+- Khi thêm / sửa lớp học bổ sung thêm trường thông tin: số giờ  mỗi buổi học, trong màn hình "Lịch buổi học"  khi đánh dấu buổi học hiển thị số giờ mặc định mỗi buổi học dạng text
+
+- Chức năng quản lý giáo viên:
++ Điểm danh giáo viên theo ngày , có ô nhập tổng số giờ của ngày đó
++ khi giáo viên điểm danh học viên buổi của buổi học , tự động động điểm danh giáo viên của ngày đó và số giờ dậy bằng số giờ của buổi học
++ Tại màn hìn dashboard, hiển thị bảng thống kê tổng số giờ đã dậy trong tháng của mỗi giáo viên, Có thể lọc theo khoảng thời gian từ ngày - đến ngày 
+
+- box lớp "Lớp đang học" nếu account là teacher thì chỉ hiển thị danh sách lớp đang học của giáo viên đó , chỉ có account admin mới show all
+
+
 laravel note
    php artisan config:clear
    php artisan cache:clear

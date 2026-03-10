@@ -53,7 +53,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
         $centers = \App\Models\Center::withCount('classes')->ordered()->get();
         $user = auth()->user();
         $classesInProgress = \App\Models\CenterClass::where('status', \App\Models\CenterClass::STATUS_IN_PROGRESS)
-            ->with(['center', 'course', 'teachers'])
+            ->with(['center', 'course', 'teachers'])->withCount('students')
             ->when(! $user->isAdmin(), function ($q) use ($user) {
                 $q->whereHas('teachers', fn ($t) => $t->where('users.id', $user->id));
             })
@@ -101,6 +101,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('centers/{center}/classes/{center_class}/students/import', [AdminCenterStudentController::class, 'importForm'])->name('centers.classes.students.import');
     Route::get('centers/{center}/classes/{center_class}/students/import/template', [AdminCenterStudentController::class, 'downloadTemplate'])->name('centers.classes.students.import.template');
     Route::post('centers/{center}/classes/{center_class}/students/import', [AdminCenterStudentController::class, 'import'])->name('centers.classes.students.import.store');
+    Route::put('centers/{center}/classes/{center_class}/students/{student}/tuition-paid', [AdminCenterStudentController::class, 'updateTuitionPaid'])->name('centers.classes.students.tuition-paid');
     Route::resource('centers.classes.students', AdminCenterStudentController::class)->parameters(['class' => 'center_class'])->except(['show']);
     Route::resource('learning-tools', AdminLearningToolController::class)->except(['show']);
 });
