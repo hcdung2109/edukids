@@ -82,9 +82,10 @@
                     <table class="table table-hover table-striped mb-0">
                         <thead class="thead-light">
                             <tr>
-                                <th style="width: 28%;">Lớp học</th>
-                                <th style="width: 25%;">Trung tâm</th>
+                                <th style="width: 24%;">Lớp học</th>
+                                <th style="width: 22%;">Trung tâm</th>
                                 <th>Giáo viên đang dạy</th>
+                                <th class="text-center" style="width: 100px;">Số học viên</th>
                                 <th class="text-nowrap" style="min-width: 220px;">Thao tác</th>
                             </tr>
                         </thead>
@@ -105,6 +106,7 @@
                                         <span class="text-muted">Chưa gán</span>
                                     @endforelse
                                 </td>
+                                <td class="text-center">{{ $class->students_count ?? 0 }}</td>
                                 <td>
                                     <div class="dashboard-class-actions">
                                         @if($class->course)

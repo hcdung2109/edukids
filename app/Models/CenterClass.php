@@ -15,6 +15,10 @@ class CenterClass extends Model
     public const STATUS_PAUSED = 'paused';
     public const STATUS_COMPLETED = 'completed';
 
+    public const TUITION_NOT_COLLECTED = 'not_collected';
+    public const TUITION_COLLECTING = 'collecting';
+    public const TUITION_COMPLETED = 'completed';
+
     protected $table = 'center_classes';
 
     protected $fillable = [
@@ -28,6 +32,7 @@ class CenterClass extends Model
         'sort_order',
         'is_active',
         'status',
+        'tuition_collection_status',
     ];
 
     public static function statusOptions(): array
@@ -43,6 +48,20 @@ class CenterClass extends Model
     public function getStatusLabelAttribute(): string
     {
         return self::statusOptions()[$this->status] ?? $this->status;
+    }
+
+    public static function tuitionCollectionStatusOptions(): array
+    {
+        return [
+            self::TUITION_NOT_COLLECTED => 'Chưa thu',
+            self::TUITION_COLLECTING => 'Đang thu',
+            self::TUITION_COMPLETED => 'Hoàn thành',
+        ];
+    }
+
+    public function getTuitionCollectionStatusLabelAttribute(): string
+    {
+        return self::tuitionCollectionStatusOptions()[$this->tuition_collection_status ?? self::TUITION_NOT_COLLECTED] ?? $this->tuition_collection_status;
     }
 
     protected function casts(): array

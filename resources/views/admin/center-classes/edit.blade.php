@@ -85,6 +85,17 @@
                 @enderror
             </div>
             <div class="form-group">
+                <label>Thu học phí</label>
+                <select name="tuition_collection_status" class="form-control @error('tuition_collection_status') is-invalid @enderror">
+                    @foreach(\App\Models\CenterClass::tuitionCollectionStatusOptions() as $value => $label)
+                        <option value="{{ $value }}" {{ old('tuition_collection_status', $center_class->tuition_collection_status ?? \App\Models\CenterClass::TUITION_NOT_COLLECTED) == $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+                @error('tuition_collection_status')
+                    <span class="invalid-feedback">{{ $message }}</span>
+                @enderror
+            </div>
+            <div class="form-group">
                 <label>Mô tả</label>
                 <textarea name="description" rows="3" class="form-control @error('description') is-invalid @enderror">{{ old('description', $center_class->description) }}</textarea>
                 @error('description')

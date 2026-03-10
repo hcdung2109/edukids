@@ -9,7 +9,33 @@
 .table-classes .btn-action-wrap { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .table-classes .btn-action-wrap .btn { padding: 0.35rem 0.5rem; min-width: 34px; width: 34px; justify-content: center; }
 .table-classes .btn-action-wrap .btn .fa { margin: 0; }
-.badge-status { font-size: 0.8rem; padding: 0.35em 0.6em; }
+/* Badge thống nhất: tông xanh nhạt cho trạng thái tốt, xám cho trung tính */
+.table-classes .badge-status {
+    font-size: 0.8rem;
+    padding: 0.35em 0.65em;
+    border-radius: 6px;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+.table-classes .badge-status.badge-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+.table-classes .badge-status.badge-secondary {
+    background-color: #e9ecef;
+    color: #495057;
+    border-color: #dee2e6;
+}
+/* Nút trong bảng: dùng outline để nhẹ hơn */
+.table-classes .btn-action-wrap .btn-outline-success { color: #28a745; border-color: #28a745; }
+.table-classes .btn-action-wrap .btn-outline-success:hover { background-color: #28a745; color: #fff; }
+.table-classes .btn-outline-primary { color: #007bff; border-color: #007bff; }
+.table-classes .btn-outline-primary:hover { background-color: #007bff; color: #fff; }
+.table-classes .btn-outline-danger:hover { color: #fff; }
+/* Nút Học viên và Xem tài liệu: tông trung tính */
+.table-classes .btn-outline-info, .table-classes .btn-outline-secondary { color: #5a6268; border-color: #adb5bd; }
+.table-classes .btn-outline-info:hover, .table-classes .btn-outline-secondary:hover { background-color: #e9ecef; border-color: #adb5bd; color: #495057; }
 </style>
 @endpush
 
@@ -37,6 +63,7 @@
                         <th>Giáo viên</th>
                         <th class="text-center" style="width: 100px">Trạng thái</th>
                         <th class="text-center" style="width: 100px">Học viên</th>
+                        <th class="text-center" style="width: 110px">Thu học phí</th>
                         <th class="text-center" style="width: 200px">Thao tác</th>
                     </tr>
                 </thead>
@@ -72,14 +99,24 @@
                                 @endif
                             </td>
                             <td class="text-center align-middle">
-                                <a href="{{ route('admin.centers.classes.students.index', [$center, $item]) }}" class="btn btn-sm btn-outline-info" title="Danh sách học viên">
+                                <a href="{{ route('admin.centers.classes.students.index', [$center, $item]) }}" class="btn btn-sm btn-outline-secondary btn-table-action" title="Danh sách học viên">
                                     <i class="fas fa-user-graduate"></i> {{ $item->students_count }}
                                 </a>
+                            </td>
+                            <td class="text-center align-middle">
+                                @php
+                                    $allPaid = ($item->students_count ?? 0) > 0 && ($item->students_paid_count ?? 0) == ($item->students_count ?? 0);
+                                @endphp
+                                @if($allPaid)
+                                    <span class="badge badge-status badge-success">Hoàn thành</span>
+                                @else
+                                    <span class="badge badge-status badge-secondary">Chưa hoàn thành</span>
+                                @endif
                             </td>
                             <td class="align-middle">
                                 <div class="btn-action-wrap">
                                     @if($canTakeAttendance)
-                                        <a href="{{ route('admin.centers.classes.attendance.index', [$center, $item]) }}" target="_blank" class="btn btn-sm btn-success btn-action" title="Điểm danh">
+                                        <a href="{{ route('admin.centers.classes.attendance.index', [$center, $item]) }}" target="_blank" class="btn btn-sm btn-outline-success btn-action" title="Điểm danh">
                                             <i class="fas fa-clipboard-check"></i>
                                         </a>
                                     @endif
@@ -101,7 +138,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted py-5">
+                            <td colspan="10" class="text-center text-muted py-5">
                                 Chưa có lớp học nào. <a href="{{ route('admin.centers.classes.create', $center) }}">Thêm lớp học</a>
                             </td>
                         </tr>

@@ -66,19 +66,19 @@
                         </a>
                     </li>
                     @endif
-                    @if(auth()->user()->isAdmin())
-                    <li class="nav-item">
-                        <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-user-tag"></i>
-                            <p>Quản lý vai trò</p>
-                        </a>
-                    </li>
-                    @endif
                     @if(auth()->user()->hasPermission('courses.view') || auth()->user()->hasPermission('courses.manage'))
                     <li class="nav-item">
                         <a href="{{ route('admin.courses.index') }}" class="nav-link {{ request()->routeIs('admin.courses.*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-graduation-cap"></i>
                             <p>Quản lý khóa học</p>
+                        </a>
+                    </li>
+                    @endif
+                    @if(auth()->user()->isAdmin())
+                    <li class="nav-item">
+                        <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-tag"></i>
+                            <p>Quản lý vai trò</p>
                         </a>
                     </li>
                     @endif

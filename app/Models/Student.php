@@ -19,6 +19,7 @@ class Student extends Model
         'parent_name',
         'parent_phone',
         'note',
+        'tuition_paid',
         'sort_order',
     ];
 
@@ -26,6 +27,7 @@ class Student extends Model
     {
         return [
             'date_of_birth' => 'date',
+            'tuition_paid' => 'boolean',
         ];
     }
 

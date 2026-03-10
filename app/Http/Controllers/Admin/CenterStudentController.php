@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Center;
 use App\Models\CenterClass;
 use App\Models\Student;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -112,6 +114,46 @@ class CenterStudentController extends Controller
         $student->delete();
         return redirect()->route('admin.centers.classes.students.index', [$center, $center_class])
             ->with('success', 'Đã xóa học viên.');
+    }
+
+    public function updateTuitionPaid(Request $request, Center $center, CenterClass $center_class, string $student): JsonResponse|RedirectResponse
+    {
+        if ($center_class->center_id !== $center->id) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Not found'], 404);
+            }
+            abort(404);
+        }
+        if (! is_numeric($student)) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Invalid student.'], 404);
+            }
+            abort(404);
+        }
+        $studentModel = Student::where('id', (int) $student)->where('center_class_id', $center_class->id)->first();
+        if (! $studentModel) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Học viên không tồn tại hoặc không thuộc lớp này.'], 404);
+            }
+            abort(404);
+        }
+        try {
+            $validated = $request->validate([
+                'tuition_paid' => ['required', 'boolean'],
+            ]);
+        } catch (ValidationException $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+            }
+            throw $e;
+        }
+        $studentModel->update(['tuition_paid' => (bool) $validated['tuition_paid']]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['ok' => true, 'tuition_paid' => $studentModel->tuition_paid]);
+        }
+        return redirect()->route('admin.centers.classes.students.index', [$center, $center_class])
+            ->with('success', 'Đã cập nhật thu học phí.');
     }
 
     public function importForm(Center $center, CenterClass $center_class): View
